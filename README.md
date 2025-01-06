@@ -11,6 +11,9 @@ Currently, two official plugins are available:
 # Create 
 - create a react vite 
 - configure TailwandCss
+- Header
+- Login Form
+- Sign Up Form
 
 
 # Features
