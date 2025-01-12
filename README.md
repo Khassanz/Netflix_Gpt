@@ -12,8 +12,19 @@ Currently, two official plugins are available:
 - create a react vite 
 - configure TailwandCss
 - Header
+- Routing of  App
 - Login Form
 - Sign Up Form
+- Form Validation
+- useRef Hook
+- firebase setup
+- Deploying our App to Production 
+- Create SignUp User Account
+- implement Sign In user api
+- created ReduxStore with userSlice
+- implemented  sign out 
+- Update Profile 
+- fetch from TMDB Movies
 
 
 # Features
