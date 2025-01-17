@@ -1,65 +1,90 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Header from "./Header";
-import { useRef } from "react";
 import { checkValidData } from "../Utils/Validate";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  updateProfile,
+} from "firebase/auth";
 import { auth } from "../Utils/Firebase";
-import {useNavigate} from 'react-router-dom'
-import {  updateProfile } from "firebase/auth";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useDispatch } from "react-redux";
+import { addUser } from "../Utils/userSlice";
+import { BackgroundImg } from "../Utils/constants";
 
 const Login = () => {
-   const navigate = useNavigate()
-   const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const [IsSignIn, setIsSignIn] = useState(true);
   const [errormessage, seterrormessage] = useState(null);
+  const [profilePicture, setProfilePicture] = useState(null); // For profile picture file
 
   const name = useRef(null);
   const email = useRef(null);
   const password = useRef(null);
-  
 
-  const handleButtonClick = () => {
+  const handleFileChange = (e) => {
+    setProfilePicture(e.target.files[0] || Profile); // Save the selected file
+  };
+
+  const handleButtonClick = async () => {
     const message = checkValidData(email.current.value, password.current.value);
 
     seterrormessage(message);
 
     if (message) return;
+
     if (!IsSignIn) {
-      // sign up logic
-      createUserWithEmailAndPassword(auth, email.current.value, password.current.value)
-        .then((userCredential) => {
+      // Sign Up logic
+      createUserWithEmailAndPassword(
+        auth,
+        email.current.value,
+        password.current.value
+      )
+        .then(async (userCredential) => {
           const user = userCredential.user;
+
+          // Upload the profile picture to Firebase Storage (if provided)
+          let photoURL = "";
+          if (profilePicture) {
+            const storage = getStorage();
+            const storageRef = ref(storage, `profilePictures/${user.uid}`);
+            await uploadBytes(storageRef, profilePicture);
+            photoURL = await getDownloadURL(storageRef);
+          }
+
+          // Update user profile with displayName and photoURL
           updateProfile(user, {
-            displayName: name.current.value, photoURL: "https://avatars.githubusercontent.com/u/165404218?v=4&size=64"
-          }).then(() => {
-            // Profile updated!
-                  const {uid,email,displayName,photoURL} = auth.currentUser;
-                    dispatch(addUser({uid:uid,email:email,displayName:displayName,photoURL:photoURL}));
-                    
-            navigate("/browse")
-          }).catch((error) => {
-            // An error occurred
-            seterrormessage(error.message)
-          });
-          
+            displayName: name.current.value,
+            photoURL: photoURL || "", // Set to uploaded URL or leave blank
+          })
+            .then(() => {
+              const { uid, email, displayName, photoURL } = auth.currentUser;
+              dispatch(addUser({ uid, email, displayName, photoURL })); // Save user info in Redux
+            })
+            .catch((error) => {
+              seterrormessage(error.message);
+            });
         })
         .catch((error) => {
           const errorCode = error.code;
           const errorMessage = error.message;
-          seterrormessage(errorCode + "-" + errorMessage);
+          seterrormessage(errorCode + " - " + errorMessage);
         });
     } else {
-      // sign in logic
-      signInWithEmailAndPassword(auth, email.current.value, password.current.value)
+      // Sign In logic
+      signInWithEmailAndPassword(
+        auth,
+        email.current.value,
+        password.current.value
+      )
         .then((userCredential) => {
           const user = userCredential.user;
-          navigate("/browse")
+          // Handle successful sign-in (if needed)
         })
         .catch((error) => {
           const errorCode = error.code;
           const errorMessage = error.message;
-          seterrormessage(errorCode + "-" + errorMessage);
+          seterrormessage(errorCode + " - " + errorMessage);
         });
     }
   };
@@ -73,7 +98,7 @@ const Login = () => {
       <Header />
       <div className="absolute inset-0">
         <img
-          src="https://assets.nflxext.com/ffe/siteui/vlv3/2f5a878d-bbce-451b-836a-398227a34fbf/web/PK-en-20241230-TRIFECTA-perspective_ee072ddd-787e-4489-b453-8c3c834f8fa0_large.jpg"
+          src={BackgroundImg}
           alt="Background"
           className="w-full h-full object-cover"
         />
@@ -87,13 +112,22 @@ const Login = () => {
           <h1 className="text-3xl font-bold mb-6">
             {IsSignIn ? "Sign In" : "Sign Up"}
           </h1>
+
           {!IsSignIn && (
-            <input
-              ref={name}
-              type="text"
-              placeholder="Full Name"
-              className="w-full p-4 mb-4 bg-gray-800 rounded-lg placeholder-gray-400"
-            />
+            <>
+              <input
+                ref={name}
+                type="text"
+                placeholder="Full Name"
+                className="w-full p-4 mb-4 bg-gray-800 rounded-lg placeholder-gray-400"
+              />
+              <input
+                type="file"
+                onChange={handleFileChange}
+                className="w-full p-4 mb-4 bg-gray-800 rounded-lg text-gray-400"
+                accept="image/*"
+              />
+            </>
           )}
           <input
             ref={email}
