@@ -8,3 +8,4 @@ export const Profile = "https://occ-0-1242-58.1.nflxso.net/dnm/api/v6/vN7bi_My87
       Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3NWFlMzcyODhmZDBmNjAzNjYzYjU2YzNlNmM1NGNhMCIsIm5iZiI6MTczNjc4NjQwOC4zNjQsInN1YiI6IjY3ODU0MWU4NGJmZDdlZjU1ZGJiMzRiYiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.LwDKv2TcodhttG02hWZH3Ul-7ihX05Yn2YY2obD5vr0'
     }
   };
+  export const IMG_CDN_URL = "https://image.tmdb.org/t/p/w500";

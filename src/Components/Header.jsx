@@ -53,18 +53,22 @@ const Header = () => {
  {user && (
   <div className="flex items-center p-2 gap-2">
      
-  <img
-    className="w-8 h-8 rounded-full border"
-    src={user.photoURL}
-    alt="user icon"
-  />
-  <button
-    onClick={handleSignOut}
-    className="flex flex-col items-start text-left font-semibold"
-  >
-    <span className="block text-xs text-white">{user.displayName}</span>
-    <span className="block text-xs text-white font-bold hover:text-blue-600">Sign Out</span>
-  </button>
+     <img
+  className="w-8 h-8 rounded-full border"
+  src={user.photoURL || "/path/to/default/avatar.png"}
+  alt="user icon"
+/>
+<button
+  onClick={handleSignOut}
+  className="flex flex-col items-start text-left font-semibold"
+>
+  <span className="block text-xs text-white">
+    {user.displayName || "Anonymous User"}
+  </span>
+  <span className="block text-xs text-white font-bold hover:text-blue-600">
+    Sign Out
+  </span>
+</button>
 </div>
 
 
